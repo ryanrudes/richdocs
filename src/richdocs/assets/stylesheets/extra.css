@@ -1,0 +1,1054 @@
+/*
+ * Material for MkDocs + Shiki (VS Code Shades of Purple).
+ * --rd-code-bg is set from editor.background in shiki-highlight.mjs (fallback below).
+ */
+
+/* --rd-code-bg is set in theme.css and shiki-highlight.mjs */
+
+.md-footer {
+  display: none;
+}
+
+.md-typeset div.highlight {
+  background-color: var(--rd-code-bg);
+  border-radius: 0.2rem;
+}
+
+.md-typeset .highlight > pre,
+.md-typeset pre.shiki {
+  margin: 0;
+  overflow-x: auto;
+  border-radius: 0.2rem;
+  background-color: var(--rd-code-bg) !important;
+}
+
+.md-typeset .highlight > pre > code,
+.md-typeset pre.shiki > code,
+.md-typeset pre > code.shiki,
+.md-typeset pre > code[data-shiki-highlighted="true"] {
+  display: block;
+  padding: 0.85em 1.1em;
+  font-size: 0.85em;
+  line-height: 1.45;
+  border-radius: 0.2rem;
+  background-color: var(--rd-code-bg) !important;
+}
+
+/* Fallback before Shiki runs */
+.md-typeset pre > code:not([data-shiki-highlighted="true"]) {
+  display: block;
+  overflow-x: auto;
+  padding: 0.85em 1.1em;
+  border-radius: 0.2rem;
+  background-color: var(--rd-code-bg);
+}
+
+.md-typeset code.shiki-inline,
+.md-typeset code.shiki:not(pre code) {
+  padding: 0.1em 0.35em;
+  border-radius: 0.15rem;
+  font-size: 0.85em;
+  background-color: var(--rd-code-bg) !important;
+}
+
+.md-typeset code.shiki-inline span {
+  background-color: transparent !important;
+}
+
+/* API symbol hover + click in code blocks (api-navigation.mjs) */
+::highlight(api-nav-target) {
+  background-color: #fad00033;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.15em;
+  text-decoration-color: #fad000;
+}
+
+.md-typeset mark.api-nav-hover-mark {
+  background-color: #fad00033;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.15em;
+  text-decoration-color: #fad000;
+  border-radius: 0.1em;
+  padding: 0;
+}
+
+body.api-nav-hovering .md-typeset pre code,
+body.api-nav-hovering .md-typeset :not(pre) > code {
+  cursor: pointer;
+}
+
+.md-typeset pre code {
+  cursor: text;
+}
+
+/* Code-block API tooltips: match compact inline autoref badges (no wrap on long names). */
+.md-tooltip2.api-nav-tooltip .md-tooltip2__inner {
+  white-space: nowrap;
+  width: max-content;
+  max-width: none;
+}
+
+.md-typeset .highlight:hover .md-clipboard::before,
+.md-typeset pre:hover .md-clipboard::before {
+  color: #e3dfff;
+}
+
+/* Legacy Pygments / HLJS — must not paint tokens gray */
+.md-typeset .highlight .k,
+.md-typeset .highlight .n,
+.md-typeset .highlight .s,
+.md-typeset .highlight .s2,
+.md-typeset .highlight .nf,
+.md-typeset .highlight .nc,
+.md-typeset .highlight .nd,
+.md-typeset .highlight .p,
+.md-typeset .highlight .o,
+.md-typeset .highlight .w,
+.md-typeset .hljs {
+  color: inherit;
+  background: inherit;
+}
+
+/* Collapsible in-page TOC (docs/javascripts/toc-collapsible.mjs). */
+
+/* Own TOC rhythm here: Material link margins combine poorly with nested grids. */
+.md-nav--secondary {
+  --rd-toc-row-gap: 0.24rem;
+  --rd-toc-branch-gap: 0.22rem;
+  --rd-toc-section-gap: 0.42rem;
+  --rd-toc-link-min-height: 1.2rem;
+}
+
+.md-nav--secondary .md-nav,
+.md-nav--primary .md-nav--secondary .md-nav {
+  margin-bottom: 0 !important;
+}
+
+.md-nav--secondary .md-nav__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rd-toc-row-gap);
+  padding-bottom: 0;
+}
+
+.md-nav--secondary .md-nav__item > .md-nav__link {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 0;
+  min-height: var(--rd-toc-link-min-height);
+}
+
+.md-nav--secondary .rd-toc-collapsible.rd-toc-expanded {
+  margin-bottom: var(--rd-toc-branch-gap);
+}
+
+.md-nav--secondary
+  > .md-nav__list
+  > .md-nav__item:not(:first-child):not(.rd-toc-collapsible):has(
+    + .rd-toc-collapsible
+  ) {
+  margin-top: var(--rd-toc-section-gap);
+}
+
+.md-nav--secondary .rd-toc-collapsible > nav.md-nav {
+  display: none;
+}
+
+.md-nav--secondary .rd-toc-collapsible.rd-toc-expanded > nav.md-nav {
+  display: block;
+}
+
+/* Row 1: label + chevron; row 2: children (grid avoids flex nowrap crushing the header). */
+.md-nav--secondary .rd-toc-collapsible {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.15rem;
+  row-gap: var(--rd-toc-branch-gap);
+  max-width: 100%;
+}
+
+.md-nav--secondary .rd-toc-collapsible > .md-nav__link {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding-right: 0 !important;
+}
+
+.md-nav--secondary .rd-toc-collapsible > .md-nav__link > .md-ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.md-nav--secondary .rd-toc-collapsible > .md-nav__link > .md-ellipsis code {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.md-nav--secondary .rd-toc-collapsible > .rd-toc-toggle {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  align-self: center;
+  margin: 0 0.05rem 0 0;
+  padding: 0;
+  border: none;
+  border-radius: 0.1rem;
+  background: transparent;
+  color: #a599e9;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.85rem;
+  height: var(--rd-toc-link-min-height);
+  line-height: 1;
+}
+
+.md-nav--secondary .rd-toc-toggle::before {
+  content: "";
+  display: block;
+  width: 0.26rem;
+  height: 0.26rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(-45deg) translateY(0.5px);
+  transition: transform 0.15s ease;
+}
+
+.md-nav--secondary .rd-toc-collapsible.rd-toc-expanded > .rd-toc-toggle::before {
+  transform: rotate(45deg) translateY(0.5px);
+}
+
+.md-nav--secondary .rd-toc-collapsible > nav.md-nav {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+}
+
+.md-nav--secondary .rd-toc-toggle:hover,
+.md-nav--secondary .rd-toc-toggle:focus-visible {
+  color: #cec5ff;
+  outline: none;
+  background-color: #2d2b5580;
+}
+
+/* Hide TOC when the page has no h2+ headings (MkDocs toc extension). */
+.md-sidebar--secondary[data-md-type="toc"]:not(:has(.md-nav--secondary .md-nav__list > .md-nav__item)),
+.md-nav--primary > .md-nav__list > .md-nav__item--active > .md-nav--secondary:not(:has(.md-nav__list > .md-nav__item)) {
+  display: none !important;
+}
+
+.md-nav--primary > .md-nav__list > .md-nav__item--active > #__toc:not(:has(~ .md-nav--secondary .md-nav__list > .md-nav__item)),
+.md-nav--primary > .md-nav__list > .md-nav__item--active > label[for="__toc"]:not(:has(~ .md-nav--secondary .md-nav__list > .md-nav__item)) {
+  display: none !important;
+}
+
+/* mkdocstrings API reference — Shades of Purple accents */
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5em;
+  row-gap: 0.25em;
+  margin-top: 1.75em;
+  margin-bottom: 0.65em;
+  padding-bottom: 0.2em;
+  border-bottom: 1px solid #6943ff44;
+}
+
+/* Decorator label OR symbol badge, not both: "property my_prop" vs "class MyType" */
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading:has(> .doc-labels) > .doc-symbol {
+  display: none;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading:has(> .doc-labels) > .doc-labels {
+  order: 0;
+  flex-shrink: 0;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading:has(> .doc-labels) > .doc-object-name {
+  order: 1;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading:not(:has(> .doc-labels)) > .doc-symbol {
+  order: 0;
+  flex-shrink: 0;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading:not(:has(> .doc-labels)) > .doc-object-name {
+  order: 1;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading > .headerlink {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 0;
+  order: 3;
+}
+
+/* mkdocstrings wraps labels in <small> — match code.doc-symbol badge size */
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label {
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label > code {
+  border-radius: 0.1rem;
+  font-size: 1em;
+  padding: 0 0.3em;
+  font-weight: bold;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-property > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-instance-attribute > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-class-attribute > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-module-attribute > code {
+  color: var(--doc-symbol-attribute-fg-color);
+  background-color: var(--doc-symbol-attribute-bg-color);
+}
+
+[data-md-color-scheme="slate"]
+  .md-typeset
+  .doc.doc-heading
+  .doc-labels
+  .doc-label-property
+  > code.shiki
+  span,
+[data-md-color-scheme="slate"]
+  .md-typeset
+  .doc.doc-heading
+  .doc-labels
+  .doc-label-instance-attribute
+  > code.shiki
+  span,
+[data-md-color-scheme="slate"]
+  .md-typeset
+  .doc.doc-heading
+  .doc-labels
+  .doc-label-class-attribute
+  > code.shiki
+  span,
+[data-md-color-scheme="slate"]
+  .md-typeset
+  .doc.doc-heading
+  .doc-labels
+  .doc-label-module-attribute
+  > code.shiki
+  span {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-classmethod > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-staticmethod > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-async > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-abstractmethod > code {
+  color: var(--doc-symbol-method-fg-color);
+  background-color: var(--doc-symbol-method-bg-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-dataclass > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-class > code {
+  color: var(--doc-symbol-class-fg-color);
+  background-color: var(--doc-symbol-class-bg-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-enum > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading > .doc-symbol.doc-symbol-heading.doc-symbol-enum {
+  color: var(--doc-symbol-enum-fg-color);
+  background-color: var(--doc-symbol-enum-bg-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-member > code,
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading > .doc-symbol.doc-symbol-heading.doc-symbol-member {
+  color: var(--doc-symbol-member-fg-color);
+  background-color: var(--doc-symbol-member-bg-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc.doc-heading .doc-labels .doc-label-module > code {
+  color: var(--doc-symbol-module-fg-color);
+  background-color: var(--doc-symbol-module-bg-color);
+}
+
+/* Sidebar / page TOC: decorator badge when heading has doc-labels (see sync_toc_labels hook) */
+[data-md-color-scheme="slate"] .md-nav__link .doc-label-toc {
+  font-size: 0.85em;
+  line-height: 1.4;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link .doc-label-toc > code {
+  border-radius: 0.1rem;
+  font-size: 1em;
+  padding: 0 0.3em;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+[data-md-color-scheme="slate"] .md-nav__link code.doc-symbol-toc {
+  white-space: nowrap;
+}
+
+.md-nav__link .doc-label-toc,
+.md-nav__link .doc-label-toc > code,
+.md-nav__link code.doc-symbol-toc {
+  pointer-events: none;
+}
+
+/* TOC link text color (#a599e9 / active gold) inherits — badge colors need !important */
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-property > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-instance-attribute > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-class-attribute > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-module-attribute > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-property > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-instance-attribute > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-class-attribute > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-module-attribute > code {
+  color: var(--doc-symbol-attribute-fg-color) !important;
+  background-color: var(--doc-symbol-attribute-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-classmethod > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-staticmethod > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-async > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-abstractmethod > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-classmethod > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-staticmethod > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-async > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-abstractmethod > code {
+  color: var(--doc-symbol-method-fg-color) !important;
+  background-color: var(--doc-symbol-method-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-dataclass > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-class > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-dataclass > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-class > code {
+  color: var(--doc-symbol-class-fg-color) !important;
+  background-color: var(--doc-symbol-class-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-module > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-module > code {
+  color: var(--doc-symbol-module-fg-color) !important;
+  background-color: var(--doc-symbol-module-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-enum > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link code.doc-symbol-toc.doc-symbol-enum,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-enum > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link code.doc-symbol-toc.doc-symbol-enum {
+  color: var(--doc-symbol-enum-fg-color) !important;
+  background-color: var(--doc-symbol-enum-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-member > code,
+[data-md-color-scheme="slate"] .md-sidebar--secondary .md-nav--secondary .md-nav__link code.doc-symbol-toc.doc-symbol-member,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link .doc-label-toc.doc-label-member > code,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav--secondary .md-nav__link code.doc-symbol-toc.doc-symbol-member {
+  color: var(--doc-symbol-member-fg-color) !important;
+  background-color: var(--doc-symbol-member-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .doc-heading .doc-class-name,
+[data-md-color-scheme="slate"] .md-typeset .doc-heading .doc-attribute-name,
+[data-md-color-scheme="slate"] .md-typeset .doc-heading .doc-function-name {
+  color: #fad000;
+  font-family: var(--md-code-font), monospace;
+  font-weight: 600;
+}
+
+[data-md-color-scheme="slate"] .doc .doc-object-name a {
+  color: #b362ff;
+}
+
+[data-md-color-scheme="slate"] .doc .doc-object-name a:hover {
+  color: #fad000;
+}
+
+/* Non-heading labels (tables, signatures) — not TOC badges */
+[data-md-color-scheme="slate"] .doc-label-class:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-function:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-attribute:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-property:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-classmethod:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-staticmethod:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-async:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-abstractmethod:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-module:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-dataclass:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-enum:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-member:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-class-attribute:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-instance-attribute:not(.doc-label-toc),
+[data-md-color-scheme="slate"] .doc-label-module-attribute:not(.doc-label-toc) {
+  color: #a599e9;
+}
+
+/* Shiki must not style mkdocstrings decorator labels (see shiki-highlight.mjs). */
+.md-typeset .doc-label > code.shiki,
+.md-typeset .doc-label-toc > code.shiki {
+  background-color: transparent !important;
+  padding: 0 0.3em;
+}
+
+.doc-label-toc.doc-label-property > code.shiki,
+.doc-label-toc.doc-label-instance-attribute > code.shiki,
+.doc-label-toc.doc-label-class-attribute > code.shiki,
+.doc-label-toc.doc-label-module-attribute > code.shiki,
+.md-typeset .doc-label-property > code.shiki,
+.md-typeset .doc-label-instance-attribute > code.shiki,
+.md-typeset .doc-label-class-attribute > code.shiki,
+.md-typeset .doc-label-module-attribute > code.shiki {
+  color: var(--doc-symbol-attribute-fg-color) !important;
+  background-color: var(--doc-symbol-attribute-bg-color) !important;
+}
+
+.doc-label-toc.doc-label-classmethod > code.shiki,
+.doc-label-toc.doc-label-staticmethod > code.shiki,
+.doc-label-toc.doc-label-async > code.shiki,
+.doc-label-toc.doc-label-abstractmethod > code.shiki,
+.md-typeset .doc-label-classmethod > code.shiki,
+.md-typeset .doc-label-staticmethod > code.shiki,
+.md-typeset .doc-label-async > code.shiki,
+.md-typeset .doc-label-abstractmethod > code.shiki {
+  color: var(--doc-symbol-method-fg-color) !important;
+  background-color: var(--doc-symbol-method-bg-color) !important;
+}
+
+.doc-label-toc.doc-label-class > code.shiki,
+.doc-label-toc.doc-label-dataclass > code.shiki,
+.md-typeset .doc-label-class > code.shiki,
+.md-typeset .doc-label-dataclass > code.shiki {
+  color: var(--doc-symbol-class-fg-color) !important;
+  background-color: var(--doc-symbol-class-bg-color) !important;
+}
+
+.doc-label-toc.doc-label-module > code.shiki,
+.md-typeset .doc-label-module > code.shiki {
+  color: var(--doc-symbol-module-fg-color) !important;
+  background-color: var(--doc-symbol-module-bg-color) !important;
+}
+
+.doc-label-toc.doc-label-enum > code.shiki,
+.doc-label-toc.doc-label-member > code.shiki,
+.md-typeset .doc-label-enum > code.shiki,
+.md-typeset .doc-label-member > code.shiki,
+.md-typeset code.doc-symbol-toc.doc-symbol-enum.shiki,
+.md-typeset code.doc-symbol-toc.doc-symbol-member.shiki {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+.doc-label-toc.doc-label-enum > code.shiki,
+.md-typeset .doc-label-enum > code.shiki,
+.md-typeset code.doc-symbol-toc.doc-symbol-enum,
+.md-typeset code.doc-symbol-heading.doc-symbol-enum {
+  color: var(--doc-symbol-enum-fg-color) !important;
+  background-color: var(--doc-symbol-enum-bg-color) !important;
+}
+
+.doc-label-toc.doc-label-member > code.shiki,
+.md-typeset .doc-label-member > code.shiki,
+.md-typeset code.doc-symbol-toc.doc-symbol-member,
+.md-typeset code.doc-symbol-heading.doc-symbol-member {
+  color: var(--doc-symbol-member-fg-color) !important;
+  background-color: var(--doc-symbol-member-bg-color) !important;
+}
+
+[data-md-color-scheme="slate"] .doc-contents .highlight,
+[data-md-color-scheme="slate"] .doc .highlight {
+  background-color: var(--rd-code-bg);
+}
+
+[data-md-color-scheme="slate"] .doc-summary-short {
+  color: #cec5ff;
+}
+
+/* mkdocstrings symbol badges — match TOC palette (also when Shiki skipped them) */
+.md-typeset code.doc-symbol-class,
+.md-typeset code.doc-symbol-heading.doc-symbol-class {
+  color: var(--doc-symbol-class-fg-color);
+  background-color: var(--doc-symbol-class-bg-color);
+}
+
+.md-typeset code.doc-symbol-enum,
+.md-typeset code.doc-symbol-heading.doc-symbol-enum {
+  color: var(--doc-symbol-enum-fg-color);
+  background-color: var(--doc-symbol-enum-bg-color);
+}
+
+.md-typeset code.doc-symbol-member,
+.md-typeset code.doc-symbol-heading.doc-symbol-member {
+  color: var(--doc-symbol-member-fg-color);
+  background-color: var(--doc-symbol-member-bg-color);
+}
+
+.md-typeset code.doc-symbol-method,
+.md-typeset code.doc-symbol-function,
+.md-typeset code.doc-symbol-heading.doc-symbol-method,
+.md-typeset code.doc-symbol-heading.doc-symbol-function {
+  color: var(--doc-symbol-method-fg-color);
+  background-color: var(--doc-symbol-method-bg-color);
+}
+
+.md-typeset code.doc-symbol-attribute,
+.md-typeset code.doc-symbol-heading.doc-symbol-attribute {
+  color: var(--doc-symbol-attribute-fg-color);
+  background-color: var(--doc-symbol-attribute-bg-color);
+}
+
+.md-typeset code.doc-symbol-module,
+.md-typeset code.doc-symbol-heading.doc-symbol-module {
+  color: var(--doc-symbol-module-fg-color);
+  background-color: var(--doc-symbol-module-bg-color);
+}
+
+.md-typeset code.doc-symbol-type_alias,
+.md-typeset code.doc-symbol-heading.doc-symbol-type_alias {
+  color: var(--doc-symbol-type_alias-fg-color);
+  background-color: var(--doc-symbol-type_alias-bg-color);
+}
+
+.md-typeset code.doc-symbol-parameter,
+.md-typeset code.doc-symbol-type_parameter {
+  color: var(--doc-symbol-parameter-fg-color);
+  background-color: var(--doc-symbol-parameter-bg-color);
+}
+
+/* Pythonic ::after labels (override _mkdocstrings.css meth/func/mod, …) */
+code.doc-symbol-method::after,
+a code.doc-symbol-method::after,
+code.doc-symbol-function::after,
+a code.doc-symbol-function::after {
+  content: "def";
+}
+
+code.doc-symbol-class::after,
+a code.doc-symbol-class::after {
+  content: "class";
+}
+
+code.doc-symbol-module::after,
+a code.doc-symbol-module::after {
+  content: "module";
+}
+
+code.doc-symbol-attribute::after,
+a code.doc-symbol-attribute::after {
+  content: "var";
+}
+
+code.doc-symbol-type_alias::after,
+a code.doc-symbol-type_alias::after {
+  content: "type";
+}
+
+code.doc-symbol-enum::after,
+a code.doc-symbol-enum::after {
+  content: "enum";
+}
+
+code.doc-symbol-member::after,
+a code.doc-symbol-member::after {
+  content: "member";
+}
+
+/* Live code — header status pill + floating icon actions on code blocks */
+/* Single dark palette only — hide any cached palette toggle chrome */
+.md-header__option[data-md-component="palette"],
+.md-header__button[for="__palette"] {
+  display: none !important;
+}
+
+.md-header__inner > .live-code-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  /* Push the live-code + search cluster to the header right; DOM order keeps pill left of search. */
+  margin: 0 0.35rem 0 auto;
+  padding: 0.1rem 0.4rem 0.1rem 0.28rem;
+  border: 1px solid rgba(92, 92, 138, 0.7);
+  border-radius: 999px;
+  background: rgba(30, 30, 63, 0.5);
+  flex-shrink: 0;
+}
+
+.live-code-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  pointer-events: auto;
+}
+
+.live-code-bar__status {
+  font-family: var(--md-code-font), monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.live-code-bar--live .live-code-bar__status {
+  color: #a5ff90;
+  text-shadow: 0 0 12px rgba(165, 255, 144, 0.45);
+}
+
+.live-code-bar--inactive .live-code-bar__status,
+.live-code-bar--starting .live-code-bar__status {
+  color: #a599e9;
+}
+
+.live-code-bar--offline .live-code-bar__status {
+  color: #ff628c;
+  text-shadow: 0 0 10px rgba(255, 98, 140, 0.35);
+}
+
+.live-code-bar__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #5c5c8a;
+  border-radius: 50%;
+  background: rgba(30, 30, 63, 0.55);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.live-code-bar__dot {
+  display: block;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 50%;
+  background: #5c5c8a;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+@media screen and (max-width: 44.9375em) {
+  .md-header__inner > .live-code-bar {
+    margin-right: 0;
+    padding: 0.08rem;
+  }
+
+  .live-code-bar__status {
+    display: none;
+  }
+}
+
+.live-code-bar--inactive .live-code-bar__dot {
+  background: #a599e9;
+}
+
+.live-code-bar--live .live-code-bar__toggle {
+  border-color: #a5ff90;
+  background: rgba(165, 255, 144, 0.15);
+  box-shadow: 0 0 10px rgba(165, 255, 144, 0.35);
+}
+
+@keyframes live-code-dot-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 6px rgba(165, 255, 144, 0.65);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(165, 255, 144, 1);
+  }
+}
+
+.live-code-bar--live .live-code-bar__dot {
+  background: #a5ff90;
+  box-shadow: 0 0 8px rgba(165, 255, 144, 0.8);
+  animation: live-code-dot-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-code-bar--live .live-code-bar__dot {
+    animation: none;
+  }
+}
+
+.live-code-bar--offline .live-code-bar__toggle {
+  border-color: #ff628c;
+  background: rgba(255, 98, 140, 0.1);
+}
+
+.live-code-bar--offline .live-code-bar__dot {
+  background: #ff628c;
+}
+
+.live-code-bar__toggle:hover {
+  border-color: #b362ff;
+}
+
+.md-typeset .live-code {
+  margin: 0 0 1.25em;
+}
+
+.md-typeset .live-code__block {
+  position: relative;
+}
+
+.md-typeset .live-code__block .highlight,
+.md-typeset .live-code__block > pre {
+  margin: 0;
+}
+
+.md-typeset .live-code .md-clipboard,
+.md-typeset .live-code .md-code__button,
+.md-typeset .live-code__block .md-clipboard,
+.md-typeset .live-code__block .md-code__button,
+.md-typeset .live-code__block > .md-clipboard,
+.md-typeset .live-code__block > .md-code__button {
+  display: none !important;
+}
+
+.md-typeset .live-code__actions {
+  position: absolute;
+  top: 0.32rem;
+  right: 0.32rem;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.12rem;
+  padding: 0.12rem;
+  border-radius: 0.2rem;
+  background: rgba(30, 30, 63, 0.95);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+}
+
+.md-typeset .live-code:hover .live-code__actions,
+.md-typeset .live-code--editing .live-code__actions,
+.md-typeset .live-code:focus-within .live-code__actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-typeset .live-code__actions {
+    transition: none;
+  }
+}
+
+.md-typeset .live-code__block .highlight > pre > code,
+.md-typeset .live-code__block > pre > code,
+.md-typeset .live-code__block .live-code__cm-mount .cm-content {
+  padding: 0.85em 1.1em;
+  padding-right: 7.25rem;
+}
+
+.md-typeset .live-code__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0.15rem;
+  background: transparent;
+  color: #cec5ff;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.md-typeset .live-code__icon-btn svg {
+  display: block;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* MDI paths use the full 24×24 viewBox unevenly — normalize optical size. */
+.md-typeset .live-code__icon-btn[data-action="edit"] svg path {
+  transform: scale(0.92);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.md-typeset .live-code__icon-btn[data-action="run"] svg path {
+  transform: scale(0.86);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.md-typeset .live-code__icon-btn[data-action="reset"] svg path {
+  transform: scale(1.2);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.md-typeset .live-code__icon-btn[data-action="copy"] svg path {
+  transform: scale(0.78);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.md-typeset .live-code__icon-btn:hover {
+  background: rgba(179, 98, 255, 0.22);
+  color: #fff;
+}
+
+.md-typeset .live-code__icon-btn[aria-pressed="true"] {
+  background: rgba(250, 208, 0, 0.18);
+  color: #fad000;
+}
+
+.md-typeset .live-code__icon-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.md-typeset .live-code__icon-btn--run {
+  color: #a5ff90;
+}
+
+.md-typeset .live-code__icon-btn--run:hover {
+  background: rgba(165, 255, 144, 0.2);
+  color: #d6ffc8;
+}
+
+.md-typeset .live-code__icon-btn--run.live-code__icon-btn--run-failed {
+  color: #ff628c;
+}
+
+.md-typeset .live-code__icon-btn--run.live-code__icon-btn--run-failed:hover {
+  background: rgba(255, 98, 140, 0.22);
+  color: #ff9cb5;
+}
+
+.md-typeset .live-code__icon-btn--run.live-code__icon-btn--run-failed:disabled {
+  opacity: 0.65;
+  color: #ff628c;
+}
+
+.md-typeset .live-code__icon-btn--copied {
+  color: #a5ff90 !important;
+  background: rgba(165, 255, 144, 0.28) !important;
+  box-shadow: 0 0 0 2px rgba(165, 255, 144, 0.35);
+}
+
+.md-typeset .live-code--editing .live-code__block .highlight,
+.md-typeset .live-code--editing .live-code__block > pre {
+  outline: 2px solid #b362ff;
+  outline-offset: 0;
+}
+
+.md-typeset .live-code__view-sleep {
+  display: none !important;
+}
+
+.md-typeset .live-code__cm-mount {
+  display: block;
+}
+
+/* Same 0.85em as .highlight > pre > code (Shiki); mount lives inside <pre> on this site. */
+.md-typeset .live-code__block .live-code__cm-mount {
+  font-family: var(--md-code-font), monospace;
+  font-size: 0.85em;
+  line-height: 1.45;
+}
+
+.md-typeset .live-code__block .live-code__cm-mount .cm-editor,
+.md-typeset .live-code__block .live-code__cm-mount .cm-scroller,
+.md-typeset .live-code__block .live-code__cm-mount .cm-content,
+.md-typeset .live-code__block .live-code__cm-mount .cm-line,
+.md-typeset .live-code__block .live-code__cm-mount .cm-activeLine {
+  font-size: inherit !important;
+  line-height: inherit !important;
+  background: transparent;
+  /* Base text matches Shiki plain tokens; token spans keep HighlightStyle colors. */
+  color: #ffffff;
+}
+
+.md-typeset .live-code__block .live-code__cm-mount .cm-line,
+.md-typeset .live-code__block .live-code__cm-mount .cm-activeLine {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.md-typeset .live-code__cm-mount .cm-editor,
+.md-typeset .live-code__cm-mount .cm-scroller {
+  min-height: 0;
+}
+
+/* Function/method callees: override nested Lezer highlight span colors. */
+.md-typeset .live-code__console {
+  margin-top: 0.35rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.2rem;
+  background: #1a1a36;
+  border: 1px solid #4a4a7a;
+  border-left: 3px solid #b362ff;
+  font-family: var(--md-code-font), monospace;
+  font-size: 0.8em;
+  line-height: 1.45;
+  overflow-x: auto;
+}
+
+.md-typeset .live-code__console pre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: #e3dfff;
+  white-space: pre-wrap;
+}
+
+.md-typeset .live-code__rich {
+  font-family: var(--md-code-font), monospace;
+  font-size: 0.92em;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #e3dfff;
+}
+
+.md-typeset .live-code__rich pre {
+  margin: 0.25em 0;
+  padding: 0;
+  background: transparent !important;
+  color: inherit;
+}
+
+
+.md-typeset .live-code__err {
+  color: #ff628c;
+}
+
+.md-typeset .live-code__muted {
+  color: #a599e9;
+  font-style: italic;
+}

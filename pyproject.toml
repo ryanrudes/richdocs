@@ -1,0 +1,82 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "richdocs"
+version = "0.1.0"
+description = "A batteries-included documentation experience for MkDocs Material: Shiki syntax highlighting, runnable live code, API-symbol hover & auto-linking, mkdocstrings enum/badge templates, and TOC enhancements."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+license-files = ["LICENSE"]
+authors = [{ name = "Ryan Rudes" }]
+keywords = [
+  "mkdocs",
+  "mkdocs-plugin",
+  "mkdocs-material",
+  "mkdocstrings",
+  "shiki",
+  "documentation",
+  "api-docs",
+  "theme",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: MkDocs",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Documentation",
+  "Topic :: Software Development :: Documentation",
+  "Typing :: Typed",
+]
+dependencies = [
+  "mkdocs>=1.6",
+  "mkdocs-material>=9.5",
+  "mkdocstrings[python]>=0.25",
+  "pymdown-extensions>=10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "ruff>=0.6",
+  "mypy>=1.11",
+]
+
+[project.urls]
+Homepage = "https://github.com/ryanrudes/richdocs"
+Documentation = "https://ryanrudes.github.io/richdocs/"
+Repository = "https://github.com/ryanrudes/richdocs"
+Issues = "https://github.com/ryanrudes/richdocs/issues"
+Changelog = "https://github.com/ryanrudes/richdocs/blob/main/CHANGELOG.md"
+
+# A single entry point is all a downstream project needs: `plugins: [richdocs]`.
+[project.entry-points."mkdocs.plugins"]
+richdocs = "richdocs.plugin:RichDocsPlugin"
+
+[tool.hatch.build.targets.wheel]
+# Bundles everything under the package, including the front-end assets
+# (assets/javascripts, stylesheets, templates, themes) needed at runtime.
+packages = ["src/richdocs"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/richdocs", "README.md", "LICENSE", "CHANGELOG.md"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["B008"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["richdocs"]
+ignore_missing_imports = true
