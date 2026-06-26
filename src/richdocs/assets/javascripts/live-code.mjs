@@ -61,9 +61,16 @@ let editorModulePromise = null;
 let connectionState = "inactive";
 /** True when `mkdocs serve` exposes the richdocs Jupyter launcher route (dev only). */
 let jupyterLauncherAvailable = false;
+/** True while the Pyodide WASM runtime is loading (first run). */
+let pyodideLoading = false;
 
 function isLive() {
   return connectionState === "live";
+}
+
+/** Whether code runs in the browser (Pyodide) rather than a Jupyter kernel. */
+function isBrowserRuntime() {
+  return RUNTIME === "pyodide" || (RUNTIME === "auto" && connectionState === "offline");
 }
 
 function isShellLang(lang) {
@@ -866,7 +873,15 @@ async function runOnKernel(kernel, code, lang, stream) {
 
 async function runViaPyodide(code, lang, stream) {
   const { runOnPyodide } = await import("./live-code-pyodide.mjs");
-  return runOnPyodide(code, lang, stream);
+  try {
+    return await runOnPyodide(code, lang, stream, (state) => {
+      pyodideLoading = state === "loading";
+      updateBarUi();
+    });
+  } finally {
+    pyodideLoading = false;
+    updateBarUi();
+  }
 }
 
 async function executeCode(code, lang, stream) {
@@ -1323,6 +1338,16 @@ function updateBarUi() {
   const status = document.getElementById("live-code-status");
   const toggle = document.getElementById("live-code-toggle");
   if (!bar || !status || !toggle) {
+    return;
+  }
+
+  // In-browser (Pyodide) runtime: show a dedicated indicator instead of the
+  // Jupyter connection state, so a published site doesn't read "Not running".
+  if (isBrowserRuntime()) {
+    bar.className = pyodideLoading ? "live-code-bar live-code-bar--starting" : "live-code-bar live-code-bar--live";
+    status.textContent = pyodideLoading ? "Loading Python…" : "Python · browser";
+    toggle.setAttribute("aria-pressed", "true");
+    toggle.setAttribute("aria-label", "Python runs in your browser (Pyodide)");
     return;
   }
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "richdocs"
-version = "0.3.1"
+version = "0.4.0"
 description = "A batteries-included documentation experience for MkDocs Material: Shiki syntax highlighting, runnable live code, API-symbol hover & auto-linking, mkdocstrings enum/badge templates, and TOC enhancements."
 readme = "README.md"
 requires-python = ">=3.11"

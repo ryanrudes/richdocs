@@ -1,9 +1,9 @@
 /**
- * In-browser Python execution via Pyodide (CPython compiled to WebAssembly).
+ * In-browser Python execution via Pyodide — runs in a Web Worker (off the main
+ * thread, so the page stays responsive) and streams output back.
  *
  * Lets live-code blocks run on a static site (e.g. GitHub Pages) with no server.
- * Python only — shell blocks need the local Jupyter runtime. Runs on the main
- * thread (fine for short doc snippets); a Web Worker is a possible future step.
+ * Python only — shell blocks need the local Jupyter runtime.
  *
  * Configured via `window.__richdocsConfig.jupyter.pyodide`:
  *   { version, indexUrl, packages: [...] }   // packages installed via micropip
@@ -17,38 +17,60 @@ const PACKAGES = PY.packages || [];
 
 const SHELL_LANGS = new Set(["bash", "sh", "shell", "zsh", "console"]);
 
-/** @type {Promise<any> | null} */
-let runtimePromise = null;
+/** @type {Worker | null} */
+let worker = null;
+let nextId = 1;
+/** @type {Map<number, { stream: any, onStatus?: (s: string) => void, stdout: string, stderr: string, resolve: (r: any) => void }>} */
+const pending = new Map();
 
-async function loadRuntime() {
-  if (!runtimePromise) {
-    runtimePromise = (async () => {
-      const { loadPyodide } = await import(`${INDEX_URL}pyodide.mjs`);
-      const pyodide = await loadPyodide({ indexURL: INDEX_URL });
-      if (PACKAGES.length) {
-        await pyodide.loadPackage("micropip");
-        const micropip = pyodide.pyimport("micropip");
-        await micropip.install(PACKAGES);
-      }
-      return pyodide;
-    })().catch((error) => {
-      // Allow a later run to retry loading after a transient failure.
-      runtimePromise = null;
-      throw error;
-    });
+function ensureWorker() {
+  if (worker) {
+    return worker;
   }
-  return runtimePromise;
+  worker = new Worker(new URL("./live-code-pyodide-worker.mjs", import.meta.url), { type: "module" });
+  worker.onmessage = (event) => {
+    const m = event.data || {};
+    const entry = pending.get(m.id);
+    if (!entry) {
+      return;
+    }
+    if (m.type === "stdout") {
+      entry.stdout += m.text;
+      entry.stream?.appendStdout(m.text);
+    } else if (m.type === "stderr") {
+      entry.stderr += m.text;
+      entry.stream?.appendStderr(m.text);
+    } else if (m.type === "status") {
+      entry.onStatus?.(m.state);
+    } else if (m.type === "done") {
+      pending.delete(m.id);
+      entry.resolve({ stdout: entry.stdout, stderr: entry.stderr, stdoutHtml: "", stderrHtml: "" });
+    }
+  };
+  worker.onerror = (event) => {
+    const message = `In-browser Python runtime crashed: ${event.message || "worker error"}`;
+    for (const [id, entry] of pending) {
+      entry.stream?.appendStderr(message);
+      entry.resolve({ stdout: entry.stdout, stderr: entry.stderr + message, stdoutHtml: "", stderrHtml: "" });
+      pending.delete(id);
+    }
+    worker?.terminate();
+    worker = null; // recreated on the next run
+  };
+  return worker;
 }
 
 /**
- * Execute Python in the browser. Mirrors runOnKernel's contract: streams output
- * into `stream` and returns { stdout, stderr, stdoutHtml, stderrHtml }.
+ * Execute Python in the browser (via the worker). Mirrors runOnKernel's contract:
+ * streams output into `stream`, returns { stdout, stderr, stdoutHtml, stderrHtml }.
+ * `onStatus("loading" | "running")` lets the caller drive a status indicator.
  *
  * @param {string} code
  * @param {string} lang
  * @param {{ appendStdout: (t: string) => void, appendStderr: (t: string) => void } | undefined} stream
+ * @param {((state: string) => void) | undefined} onStatus
  */
-export async function runOnPyodide(code, lang, stream) {
+export async function runOnPyodide(code, lang, stream, onStatus) {
   if (SHELL_LANGS.has(lang)) {
     const msg =
       "Shell blocks can't run in the browser (Pyodide). Run the docs locally with Jupyter for shell execution.";
@@ -56,47 +78,18 @@ export async function runOnPyodide(code, lang, stream) {
     return { stdout: "", stderr: msg, stdoutHtml: "", stderrHtml: "" };
   }
 
-  let pyodide;
-  // Pyodide's first load fetches several MB of WASM — surface that so the run
-  // doesn't look frozen.
-  if (runtimePromise === null) {
-    stream?.appendStdout("Loading the in-browser Python runtime (first run only)…\n");
-  }
+  let w;
   try {
-    pyodide = await loadRuntime();
+    w = ensureWorker();
   } catch (error) {
-    const msg = `Failed to load the in-browser Python runtime: ${error?.message ?? error}`;
+    const msg = `Could not start the in-browser Python runtime: ${error?.message ?? error}`;
     stream?.appendStderr(msg);
     return { stdout: "", stderr: msg, stdoutHtml: "", stderrHtml: "" };
   }
 
-  let stdout = "";
-  let stderr = "";
-  // Pyodide's `batched` callback fires per line, without the trailing newline.
-  pyodide.setStdout({
-    batched: (text) => {
-      stdout += text + "\n";
-      stream?.appendStdout(text + "\n");
-    },
+  const id = nextId++;
+  return new Promise((resolve) => {
+    pending.set(id, { stream, onStatus, stdout: "", stderr: "", resolve });
+    w.postMessage({ type: "run", id, code, indexUrl: INDEX_URL, packages: PACKAGES });
   });
-  pyodide.setStderr({
-    batched: (text) => {
-      stderr += text + "\n";
-      stream?.appendStderr(text + "\n");
-    },
-  });
-
-  try {
-    await pyodide.runPythonAsync(code);
-  } catch (error) {
-    // PythonError.message holds the formatted traceback.
-    const text = error?.message ?? String(error);
-    stderr += text;
-    stream?.appendStderr(text);
-  } finally {
-    pyodide.setStdout({});
-    pyodide.setStderr({});
-  }
-
-  return { stdout, stderr, stdoutHtml: "", stderrHtml: "" };
 }

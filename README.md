@@ -190,10 +190,12 @@ Runnable code blocks have two backends, chosen by `live_code.runtime`:
 
 - **`jupyter`** (default) — a local Jupyter kernel (full Python, any package).
   On a published site it shows a "needs Jupyter" notice rather than running.
-- **`pyodide`** — CPython compiled to WebAssembly, running **in the browser**, so
-  blocks are runnable on a published static site (e.g. GitHub Pages) with no
-  server. Python only (shell blocks need Jupyter); install WASM-wheel packages via
-  `live_code.pyodide.packages` (e.g. `numpy`, `pandas` — not `torch`/`mujoco`).
+- **`pyodide`** — CPython compiled to WebAssembly, running **in the browser** (in
+  a Web Worker, so the page stays responsive), so blocks are runnable on a
+  published static site (e.g. GitHub Pages) with no server. The header shows a
+  "Python · browser" indicator. Python only (shell blocks need Jupyter); install
+  WASM-wheel packages via `live_code.pyodide.packages` (e.g. `numpy`, `pandas` —
+  not `torch`/`mujoco`).
 - **`auto`** — use Jupyter if it's reachable, otherwise fall back to Pyodide.
 
 > **Opt into web execution deliberately.** Pyodide can only run browser-compatible

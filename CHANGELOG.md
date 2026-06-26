@@ -6,6 +6,18 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-26
+
+### Changed
+
+- **Pyodide now runs in a Web Worker** (off the main thread), so executing a
+  block no longer blocks the page; output streams back as it's produced.
+- The header status bar shows a dedicated **"Python · browser"** indicator (and
+  "Loading Python…" during the first WASM load) when the browser runtime is
+  active, instead of the Jupyter "Not running" state.
+
+[0.4.0]: https://github.com/ryanrudes/richdocs/releases/tag/v0.4.0
+
 ## [0.3.1] - 2026-06-26
 
 ### Changed
