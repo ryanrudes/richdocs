@@ -6,7 +6,10 @@
 (function () {
   const BOTTOM_EPS = 8;
   const PIN_MS = 1400;
-  const NEXT_HEADING_HANDOFF_PX = 96;
+  // Extra px (config) added to the handoff threshold for tall sticky headers.
+  const RD_OFFSET =
+    (typeof window !== "undefined" && window.__richdocsConfig?.toc?.scrollspyOffset) || 0;
+  const NEXT_HEADING_HANDOFF_PX = 96 + RD_OFFSET;
   const ACTIVE_ATTR = "data-rd-toc-active";
 
   const TOC_NAV_SELECTOR =

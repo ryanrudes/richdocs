@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-26
+
+Deep configurability for badges, linking, and highlighting. All additions are
+override-only — defaults reproduce the 0.1.0 look exactly.
+
+### Added
+
+- **`symbols.labels`** — relabel any API symbol-kind badge (`class` → `def` /
+  `dataclass` / `enum` / `member` / anything) in both headings and the TOC.
+- **`symbols.colors`** — set `{fg, bg}` per kind; also recolors the decorator
+  labels that map to a kind (e.g. `property` follows `attribute`).
+- **`dataclass`** badge detection (`@dataclass` → `doc-symbol-dataclass`), so
+  dataclasses can be labeled/colored distinctly from plain classes.
+- **`api.linkify`** — `short_names`, `dotted`, `skip_extensions`, and custom
+  `aliases` (map an arbitrary word to a symbol) for both prose and code-block
+  linking.
+- **`theme.highlight`** — Shiki `theme`, `inline`, `default_language`,
+  `languages`, and `aliases`.
+- **`toc`** — `collapse_default` and `scrollspy_offset`.
+
+[0.2.0]: https://github.com/ryanrudes/richdocs/releases/tag/v0.2.0
+
 ## [0.1.0] - 2026-06-26
 
 Initial release. richdocs began as the bespoke docs machinery of the

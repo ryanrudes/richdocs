@@ -73,31 +73,47 @@ plugins:
 
       api:
         id_prefix: your_package     # mkdocstrings anchor prefix (default: = package)
-        # When a symbol is documented on several pages, the canonical page is
-        # derived from nav order; pin specific pages here if needed:
-        page_priority_overrides: {}            # {"/api/reference/": 100, ...}
-        registry_exports: {}                   # {name: "pkg.module.singleton"} for registry-style singletons
-        ambiguous_short_names: []              # short names to never auto-link
-        prefer_class_for_short: {}             # {short_name: ClassName} to disambiguate
+        page_priority_overrides: {} # {"/api/reference/": 100, ...} canonical-page tuning
+        registry_exports: {}        # {name: "pkg.module.singleton"} for registry singletons
+        ambiguous_short_names: []   # short names to never auto-link
+        prefer_class_for_short: {}  # {short_name: ClassName} to disambiguate
         short_name_blocklist: []
-        extra_modules: []                      # extra submodules whose __all__ to index
+        extra_modules: []           # extra submodules whose __all__ to index
         section_suffixes: ["-functions", "-attributes", "-classes"]
+        linkify:                    # what / how symbols get linked
+          short_names: true         # link `Robot`, not just `pkg.Robot`
+          dotted: true              # resolve `fmt.joint_names` via the rightmost segment
+          skip_extensions: [md, py, yaml, yml, npz, json, toml, txt]
+          aliases: {}               # {"the result": "pkg.RetargetingResult"}
 
-      live_code:                                # runnable code blocks (dev only)
+      symbols:                      # relabel / recolor API badges (override-only)
+        labels: {}                  # {class: dataclass, function: def, attribute: var, enum: enum, ...}
+        colors: {}                  # {enum: {fg: "#7ee8d3", bg: "#7ee8d324"}, class: {fg: "#b362ff"}, ...}
+
+      live_code:                    # runnable code blocks (dev only)
         enabled: true
         jupyter_url: http://127.0.0.1:8888/
-        token: your_package-docs                # default: <package>-docs
+        token: your_package-docs    # default: <package>-docs
         launcher_port: 8889
-        launcher_script: scripts/docs-jupyter.sh # script that starts Jupyter
+        launcher_script: scripts/docs-jupyter.sh
         kernel: python3
         runnable_languages: [python, bash]
 
       theme:
-        shiki_theme: shades-of-purple           # bundled id, or path to a Shiki theme JSON
-        palette: {}                             # override any color (see below)
-        layout: {}                              # TOC spacing tokens
+        palette: {}                 # override any color (see Theming)
+        layout: {}                  # TOC spacing tokens
+        highlight:                  # Shiki syntax highlighting
+          theme: shades-of-purple   # bundled id, or path to a Shiki theme JSON
+          inline: true              # highlight inline code too
+          default_language: python  # for untagged fenced blocks
+          languages: [python, bash, yaml, toml, json, markdown]
+          aliases: {py: python, sh: bash, yml: yaml}
 
-      features:                                 # turn pieces on/off
+      toc:
+        collapse_default: true      # nested API/category sections start collapsed
+        scrollspy_offset: 0         # extra px added to the active-heading threshold
+
+      features:                     # coarse on/off
         shiki: true
         api_hover: true
         linkify_inline_code: true
@@ -126,6 +142,31 @@ plugins:
 ```
 
 Supported friendly keys: `page_bg`, `sidebar_bg`, `code_bg`, `code_fg`, `surface_1`–`surface_4`, `text`, `text_muted`, `text_soft`, `purple`, `purple_bright`, `gold`/`accent`, `enum_fg`/`enum_bg`, `member_fg`/`member_bg`, and the TOC layout tokens `toc_row_gap`, `toc_branch_gap`, `toc_section_gap`, `toc_link_min_height`.
+
+### Symbol labels & colors
+
+Rename or recolor the API symbol-kind badges (headings **and** TOC) per construct
+— override-only, so unset kinds keep the bundled defaults:
+
+```yaml
+plugins:
+  - richdocs:
+      package: your_package
+      symbols:
+        labels:
+          function: def          # "" empties the badge
+          attribute: var
+          dataclass: dataclass   # dataclasses are detected automatically
+          enum: enum
+          member: member
+        colors:
+          enum:  { fg: "#7ee8d3", bg: "#7ee8d324" }
+          class: { fg: "#b362ff" }
+```
+
+Recognized kinds: `module`, `class`, `dataclass`, `enum`, `function`, `method`,
+`attribute`, `type_alias`, `member`. Setting a kind's color also recolors the
+decorator labels that map to it (e.g. `property` follows `attribute`).
 
 ## How it works
 

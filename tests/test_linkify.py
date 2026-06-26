@@ -11,10 +11,12 @@ class _FakeIndex:
     def build_autoref_index(self):
         return ({"pkg.Robot": "pkg.Robot"}, {"Robot": "pkg.Robot"})
 
-    def resolve_identifier(self, text, by_id, by_short):
+    def resolve_identifier(self, text, by_id, by_short, *, short_names=True, dotted=True):
         if text in by_id:
             return text
-        return by_short.get(text)
+        if short_names:
+            return by_short.get(text)
+        return None
 
 
 def _linkifier() -> Linkifier:

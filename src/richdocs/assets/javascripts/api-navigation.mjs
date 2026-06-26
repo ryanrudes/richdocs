@@ -3,6 +3,7 @@
  */
 
 const RICHDOCS = (typeof window !== "undefined" && window.__richdocsConfig) || {};
+const LINKIFY = RICHDOCS.api?.linkify || {};
 const scope = typeof __md_scope !== "undefined" ? __md_scope : new URL(".", location);
 const INDEX_URL = new URL(RICHDOCS.api?.indexUrl || "javascripts/api-symbols.json", scope).href;
 const HIGHLIGHT_NAME = "api-nav-target";
@@ -54,6 +55,15 @@ async function loadIndex() {
     console.warn(
       "api-navigation: api-symbols.json is missing tooltip titles; restart `mkdocs serve` or run `mkdocs build`.",
     );
+  }
+  // Custom aliases (word → fully-qualified anchor id) resolve to that symbol's href.
+  const aliases = LINKIFY.aliases || {};
+  data._aliasHrefs = {};
+  for (const [word, target] of Object.entries(aliases)) {
+    const href = data.byId[target] ?? data.byShortName[target];
+    if (href) {
+      data._aliasHrefs[word] = href;
+    }
   }
   index = data;
   return index;
@@ -181,7 +191,17 @@ function rangeForOffsets(codeEl, startOffset, endOffset) {
  * @param {Awaited<ReturnType<typeof loadIndex>>} data
  */
 function hrefForSegment(symbol, data) {
-  return data.byId[symbol] ?? data.byShortName[symbol] ?? null;
+  if (data._aliasHrefs && symbol in data._aliasHrefs) {
+    return data._aliasHrefs[symbol];
+  }
+  const viaId = data.byId[symbol];
+  if (viaId) {
+    return viaId;
+  }
+  if (LINKIFY.shortNames === false) {
+    return null;
+  }
+  return data.byShortName[symbol] ?? null;
 }
 
 /**
@@ -200,7 +220,7 @@ function resolveSymbolMatch(symbol, start, end, offset, data) {
     return { symbol, start, end, href: direct };
   }
 
-  if (!symbol.includes(".")) {
+  if (LINKIFY.dotted === false || !symbol.includes(".")) {
     return null;
   }
 

@@ -202,13 +202,21 @@ class SymbolIndex:
 
     # -- identifier resolution -------------------------------------------
 
-    def resolve_identifier(self, text: str, by_id: dict[str, str], by_short: dict[str, str]) -> str | None:
+    def resolve_identifier(
+        self,
+        text: str,
+        by_id: dict[str, str],
+        by_short: dict[str, str],
+        *,
+        short_names: bool = True,
+        dotted: bool = True,
+    ) -> str | None:
         if text in by_id:
             return text
         if not re.fullmatch(r"[A-Za-z_][\w.]*", text):
             return None
-        if text in by_short:
+        if short_names and text in by_short:
             return by_short[text]
-        if "." in text and text.startswith(self.spec.package_prefixes):
+        if dotted and "." in text and text.startswith(self.spec.package_prefixes):
             return by_id.get(text)
         return None

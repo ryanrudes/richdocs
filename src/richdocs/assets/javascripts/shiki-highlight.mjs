@@ -22,15 +22,20 @@ const THEME_URL = resolveThemeUrl(RICHDOCS_THEME.shikiTheme);
 const RICHDOCS_CODE_BG_FALLBACK = "#2d2b55";
 const RICHDOCS_PAGE_BG_FALLBACK = "#1e1e3f";
 
+const HL = RICHDOCS_THEME.highlight || {};
+const DEFAULT_LANGUAGE = HL.defaultLanguage || "python";
+const INLINE_ENABLED = HL.inline !== false;
+
 const LANG_ALIASES = {
   py: "python",
   sh: "bash",
   shell: "bash",
   yml: "yaml",
   md: "markdown",
+  ...(HL.aliases || {}),
 };
 
-const BASE_LANGS = [
+const BASE_LANGS = HL.languages || [
   "python",
   "bash",
   "yaml",
@@ -70,7 +75,7 @@ export async function getHighlighter() {
 
 /** @param {string} lang */
 export function resolveLanguageId(lang) {
-  const raw = String(lang || "python").toLowerCase();
+  const raw = String(lang || DEFAULT_LANGUAGE).toLowerCase();
   return LANG_ALIASES[raw] || raw;
 }
 
@@ -79,10 +84,7 @@ function resolveLanguage(codeEl) {
   if (match) {
     return resolveLanguageId(match[1]);
   }
-  if (codeEl.classList.contains("highlight")) {
-    return "python";
-  }
-  return "python";
+  return DEFAULT_LANGUAGE;
 }
 
 function unwrapCodeHtml(html) {
@@ -165,19 +167,21 @@ async function highlightAll(root) {
   const inlineCodes = new Set();
 
   root.querySelectorAll(".md-typeset pre code").forEach((el) => blockCodes.add(el));
-  root.querySelectorAll(".md-typeset code").forEach((el) => {
-    if (el.closest("pre") !== null) {
-      return;
-    }
-    if (el.closest(".highlight") !== null) {
-      return;
-    }
-    /* mkdocstrings badges (def/class/var, property, module-attribute, …) — CSS only */
-    if (isMkdocstringsBadgeCode(el)) {
-      return;
-    }
-    inlineCodes.add(el);
-  });
+  if (INLINE_ENABLED) {
+    root.querySelectorAll(".md-typeset code").forEach((el) => {
+      if (el.closest("pre") !== null) {
+        return;
+      }
+      if (el.closest(".highlight") !== null) {
+        return;
+      }
+      /* mkdocstrings badges (def/class/var, property, module-attribute, …) — CSS only */
+      if (isMkdocstringsBadgeCode(el)) {
+        return;
+      }
+      inlineCodes.add(el);
+    });
+  }
 
   await Promise.all([
     ...[...blockCodes].map((el) => highlightBlockCodeElement(el, highlighter)),

@@ -21,6 +21,11 @@ Context:
 {#- Language module providing the `t` translation method. -#}
 {% import "enum_macros.jinja" as enum %}
 {% set is_enum = enum.is_enum_class(class) %}
+{% set is_dataclass = enum.is_dataclass(class) %}
+{# Badge kind classes: enums become `enum`; dataclasses stay `class` plus an
+   additive `doc-symbol-dataclass` so richdocs' generated CSS can relabel/recolor
+   them without changing the default (class) look. #}
+{% set badge_kind = 'enum' if is_enum else ('class doc-symbol-dataclass' if is_dataclass else 'class') %}
 
 <div class="doc doc-object {% if is_enum %}doc-enum{% else %}doc-class{% endif %}">
   {% with obj = class, html_id = class.path, all_members = class.all_members %}
@@ -43,7 +48,7 @@ Context:
           role="class",
           id=html_id,
           class="doc doc-heading",
-          toc_label=(('<code class="doc-symbol doc-symbol-toc doc-symbol-' ~ ('enum' if is_enum else 'class') ~ '"></code>&nbsp;')|safe if config.show_symbol_type_toc else '') + (config.toc_label if config.toc_label and root else class.name),
+          toc_label=(('<code class="doc-symbol doc-symbol-toc doc-symbol-' ~ badge_kind ~ '"></code>&nbsp;')|safe if config.show_symbol_type_toc else '') + (config.toc_label if config.toc_label and root else class.name),
           skip_inventory=config.skip_local_inventory,
         ) %}
 
@@ -52,7 +57,7 @@ Context:
 
           This block renders the heading for the class.
           -#}
-          {% if config.show_symbol_type_heading %}<code class="doc-symbol doc-symbol-heading doc-symbol-{{ 'enum' if is_enum else 'class' }}"></code>{% endif %}
+          {% if config.show_symbol_type_heading %}<code class="doc-symbol doc-symbol-heading doc-symbol-{{ badge_kind }}"></code>{% endif %}
           {% if config.heading and root %}
             {{ config.heading }}
           {% elif config.separate_signature %}
@@ -123,7 +128,7 @@ Context:
         {% filter heading(heading_level,
             role="class",
             id=html_id,
-            toc_label=(('<code class="doc-symbol doc-symbol-toc doc-symbol-' ~ ('enum' if is_enum else 'class') ~ '"></code>&nbsp;')|safe if config.show_symbol_type_toc else '') + (config.toc_label if config.toc_label and root else class.name),
+            toc_label=(('<code class="doc-symbol doc-symbol-toc doc-symbol-' ~ badge_kind ~ '"></code>&nbsp;')|safe if config.show_symbol_type_toc else '') + (config.toc_label if config.toc_label and root else class.name),
             hidden=True,
             skip_inventory=config.skip_local_inventory,
           ) %}

@@ -7,6 +7,10 @@
 {%- endfor -%}
 {%- endmacro %}
 
+{% macro is_dataclass(obj) -%}
+{%- if "dataclass" in (obj.labels or []) -%}true{%- endif -%}
+{%- endmacro %}
+
 {% macro enum_member_type(obj) -%}
 {%- for base in obj.bases -%}
 {%- set b = base | string -%}

@@ -20,8 +20,10 @@ from richdocs._api_index import ApiIndexer
 from richdocs._assets import (
     CONFIG_JS_URI,
     PALETTE_CSS_URI,
+    SYMBOLS_CSS_URI,
     bundled_static_files,
     generate_config_js,
+    generate_symbols_css,
     generate_theme_overrides_css,
     register_static_assets,
     set_mkdocstrings_templates,
@@ -50,6 +52,8 @@ class RichDocsPlugin(BasePlugin[RichDocsConfig]):
         self._api_indexer: ApiIndexer | None = None
         self._launcher: JupyterLauncher | None = None
         self._config_js: str = ""
+        self._palette_css: str = ""
+        self._symbols_css: str = ""
 
     # -- configuration ----------------------------------------------------
 
@@ -84,7 +88,18 @@ class RichDocsPlugin(BasePlugin[RichDocsConfig]):
             section_suffixes=tuple(api.section_suffixes),
         )
         self._symbol_index = SymbolIndex(spec)
-        self._linkifier = Linkifier(self._symbol_index) if self.config.features.linkify_inline_code else None
+        link = api.linkify
+        self._linkifier = (
+            Linkifier(
+                self._symbol_index,
+                skip_extensions=tuple(link.skip_extensions),
+                link_short_names=bool(link.short_names),
+                link_dotted=bool(link.dotted),
+                aliases=dict(link.aliases),
+            )
+            if self.config.features.linkify_inline_code
+            else None
+        )
         overrides = {k: int(v) for k, v in api.page_priority_overrides.items()}
         priority = build_priority_resolver(config.get("nav"), overrides)
         self._api_indexer = ApiIndexer(spec, priority)
@@ -102,6 +117,7 @@ class RichDocsPlugin(BasePlugin[RichDocsConfig]):
 
         self._config_js = generate_config_js(self.config, id_prefix=id_prefix, token=token, assets_dir=ASSETS_DIR)
         self._palette_css = generate_theme_overrides_css(self.config)
+        self._symbols_css = generate_symbols_css(self.config)
 
         register_static_assets(config, self.config)
         set_mkdocstrings_templates(config, ASSETS_DIR)
@@ -114,6 +130,7 @@ class RichDocsPlugin(BasePlugin[RichDocsConfig]):
             *bundled_static_files(ASSETS_DIR, config),
             File.generated(config, CONFIG_JS_URI, content=self._config_js),
             File.generated(config, PALETTE_CSS_URI, content=self._palette_css),
+            File.generated(config, SYMBOLS_CSS_URI, content=self._symbols_css),
         ]
         for file in bundled:
             # Plugin assets win over any same-named project file (e.g. before the

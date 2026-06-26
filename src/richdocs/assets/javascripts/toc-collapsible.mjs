@@ -9,6 +9,10 @@ const CATEGORY_ID =
 const TOC_NAV_SELECTOR =
   ".md-sidebar--secondary .md-nav--secondary, .md-nav--primary .md-nav__item--active > .md-nav--secondary";
 
+// Whether nested sections start collapsed (default) or expanded.
+const COLLAPSE_DEFAULT =
+  (typeof window !== "undefined" && window.__richdocsConfig?.toc?.collapseDefault) !== false;
+
 /**
  * @param {HTMLElement} item
  * @param {HTMLElement} rootNav
@@ -81,13 +85,13 @@ export function setupCollapsibleToc(nav) {
     }
 
     item.dataset.rdTocCollapsible = "";
-    item.classList.add("rd-toc-collapsible", "rd-toc-collapsed");
+    item.classList.add("rd-toc-collapsible", COLLAPSE_DEFAULT ? "rd-toc-collapsed" : "rd-toc-expanded");
 
     const toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "rd-toc-toggle";
-    toggle.setAttribute("aria-expanded", "false");
-    toggle.setAttribute("aria-label", "Expand section");
+    toggle.setAttribute("aria-expanded", COLLAPSE_DEFAULT ? "false" : "true");
+    toggle.setAttribute("aria-label", COLLAPSE_DEFAULT ? "Expand section" : "Collapse section");
     toggle.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();

@@ -28,6 +28,20 @@ _STATIC_SUBDIRS = ("javascripts", "stylesheets", "themes")
 CONFIG_JS_URI = "javascripts/richdocs-config.js"
 #: Generated palette/layout overrides, loaded after the static stylesheets.
 PALETTE_CSS_URI = "stylesheets/richdocs-palette.css"
+#: Generated symbol label/color overrides, loaded last so they win.
+SYMBOLS_CSS_URI = "stylesheets/richdocs-symbols.css"
+
+#: Symbol-type badge kinds richdocs knows about (for ``symbols.labels`` /
+#: ``symbols.colors``). Unknown kinds are still emitted but warned about.
+_KNOWN_SYMBOL_KINDS = frozenset(
+    {"module", "class", "dataclass", "enum", "function", "method", "attribute", "type_alias", "member", "package"}
+)
+
+
+def _css_string(value: str) -> str:
+    """Escape a string for use inside a CSS ``content: "..."`` value."""
+    return value.replace("\\", "\\\\").replace('"', '\\"')
+
 
 #: Friendly ``theme.palette`` / ``theme.layout`` keys → the CSS custom property
 #: they set. Any key beginning with ``--`` is passed through verbatim, so power
@@ -83,9 +97,9 @@ def register_static_assets(config: Any, richdocs_config: RichDocsConfig) -> None
     feat = richdocs_config.features
     live = richdocs_config.live_code
 
-    # richdocs-palette.css (generated) loads last so palette/layout overrides win;
-    # any project extra_css after that still overrides the plugin.
-    css = ["stylesheets/theme.css", "stylesheets/extra.css", PALETTE_CSS_URI]
+    # Generated palette + symbol overrides load last so config wins; any project
+    # extra_css after that still overrides the plugin.
+    css = ["stylesheets/theme.css", "stylesheets/extra.css", PALETTE_CSS_URI, SYMBOLS_CSS_URI]
     config["extra_css"] = css + list(config.get("extra_css") or [])
 
     loaders = [CONFIG_JS_URI]
@@ -120,17 +134,32 @@ def resolve_shiki_theme_name(shiki_theme: str, assets_dir: Path) -> str:
         return "Shades of Purple"
 
 
+def effective_shiki_theme(richdocs_config: RichDocsConfig) -> str:
+    """``theme.highlight.theme`` if set, else the ``theme.shiki_theme`` alias."""
+    return richdocs_config.theme.highlight.theme or richdocs_config.theme.shiki_theme
+
+
 def generate_config_js(richdocs_config: RichDocsConfig, *, id_prefix: str, token: str, assets_dir: Path) -> str:
     """Build the ``window.__richdocsConfig`` object the JS modules read at runtime."""
     live = richdocs_config.live_code
     feat = richdocs_config.features
-    theme_name = resolve_shiki_theme_name(richdocs_config.theme.shiki_theme, assets_dir)
+    link = richdocs_config.api.linkify
+    hl = richdocs_config.theme.highlight
+    toc = richdocs_config.toc
+    shiki_theme = effective_shiki_theme(richdocs_config)
+    theme_name = resolve_shiki_theme_name(shiki_theme, assets_dir)
     payload = {
-        "version": 1,
+        "version": 2,
         "api": {
             "idPrefix": id_prefix,
             "indexUrl": "javascripts/api-symbols.json",
             "hover": bool(feat.api_hover),
+            "linkify": {
+                "shortNames": bool(link.short_names),
+                "dotted": bool(link.dotted),
+                "codeBlocks": bool(feat.api_hover),
+                "aliases": dict(link.aliases),
+            },
         },
         "jupyter": {
             "enabled": bool(live.enabled),
@@ -144,8 +173,18 @@ def generate_config_js(richdocs_config: RichDocsConfig, *, id_prefix: str, token
             "runnableLanguages": list(live.runnable_languages),
         },
         "theme": {
-            "shikiTheme": richdocs_config.theme.shiki_theme,
+            "shikiTheme": shiki_theme,
             "shikiThemeName": theme_name,
+            "highlight": {
+                "inline": bool(hl.inline),
+                "defaultLanguage": hl.default_language,
+                "languages": list(hl.languages),
+                "aliases": dict(hl.aliases),
+            },
+        },
+        "toc": {
+            "collapseDefault": bool(toc.collapse_default),
+            "scrollspyOffset": int(toc.scrollspy_offset),
         },
         "features": {
             "tocCollapsible": bool(feat.toc_collapsible),
@@ -178,6 +217,65 @@ def generate_theme_overrides_css(richdocs_config: RichDocsConfig) -> str:
     body = "\n".join(f"  {prop}: {value};" for prop, value in decls)
     # Target the slate scheme (where the base tokens live); loaded last so it wins.
     return f'[data-md-color-scheme="slate"] {{\n{body}\n}}\n'
+
+
+def generate_symbols_css(richdocs_config: RichDocsConfig) -> str:
+    """Build ``richdocs-symbols.css`` from ``symbols.labels`` and ``symbols.colors``.
+
+    Override-only: unset kinds keep the bundled defaults. Labels set the badge
+    text (``""`` empties it); colors set both the ``--doc-symbol-<kind>-*`` vars
+    (so decorator labels that map to a kind recolor too) and a direct rule (so
+    custom kinds like ``dataclass`` are covered).
+    """
+    sym = richdocs_config.symbols
+    rules: list[str] = []
+
+    def _warn_unknown(where: str, kind: str) -> None:
+        if kind not in _KNOWN_SYMBOL_KINDS:
+            log.warning(
+                "richdocs: unknown symbols.%s kind %r (emitted anyway). Known kinds: %s",
+                where,
+                kind,
+                ", ".join(sorted(_KNOWN_SYMBOL_KINDS)),
+            )
+
+    for kind, label in sym.labels.items():
+        kind = str(kind)
+        _warn_unknown("labels", kind)
+        rules.append(
+            f".md-typeset code.doc-symbol-{kind}::after, "
+            f".md-nav__link code.doc-symbol-{kind}::after "
+            f'{{ content: "{_css_string(str(label))}" !important; }}'
+        )
+
+    color_vars: list[str] = []
+    for kind, spec in sym.colors.items():
+        kind = str(kind)
+        _warn_unknown("colors", kind)
+        if not isinstance(spec, dict):
+            log.warning("richdocs: symbols.colors.%s must be a mapping like {fg: ..., bg: ...}", kind)
+            continue
+        fg, bg = spec.get("fg"), spec.get("bg")
+        if fg:
+            color_vars.append(f"  --doc-symbol-{kind}-fg-color: {fg};")
+        if bg:
+            color_vars.append(f"  --doc-symbol-{kind}-bg-color: {bg};")
+        decl = []
+        if fg:
+            decl.append(f"color: {fg} !important;")
+        if bg:
+            decl.append(f"background-color: {bg} !important;")
+        if decl:
+            rules.append(
+                f".md-typeset code.doc-symbol-{kind}, .md-typeset a code.doc-symbol-{kind}, "
+                f".md-nav__link code.doc-symbol-{kind} {{ {' '.join(decl)} }}"
+            )
+
+    if color_vars:
+        rules.insert(0, '[data-md-color-scheme="slate"] {\n' + "\n".join(color_vars) + "\n}")
+    if not rules:
+        return "/* richdocs: no symbol label/color overrides configured */\n"
+    return "\n".join(rules) + "\n"
 
 
 def set_mkdocstrings_templates(config: Any, assets_dir: Path) -> None:

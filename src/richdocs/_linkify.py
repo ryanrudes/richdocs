@@ -1,26 +1,46 @@
 """On-page-markdown: auto-link inline ``code`` to mkdocstrings/autorefs targets.
 
-Ported from the former ``docs/hooks/linkify_api_refs.py``. Uses the shared
-:class:`~richdocs._symbol_index.SymbolIndex` to resolve identifiers, skipping
-fenced code blocks and obvious non-symbols (paths, numbers, filenames).
+Uses the shared :class:`~richdocs._symbol_index.SymbolIndex` to resolve
+identifiers, skipping fenced code blocks and obvious non-symbols. What gets
+linked is configurable via ``api.linkify`` (short names, dotted expressions,
+skipped file extensions, and custom word→symbol aliases).
 """
 
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping, Sequence
 
 from richdocs._symbol_index import SymbolIndex
 
 _FENCED_BLOCK_RE = re.compile(r"(```[\s\S]*?```|~~~[\s\S]*?~~~)", re.MULTILINE)
 _INLINE_CODE_RE = re.compile(r"(?<!\[)(`)([^`\n]+)\1(?!\])")
-_SKIP_INLINE_RE = re.compile(r"[\s/\\]|\.(?:md|py|yaml|yml|npz|json|toml|txt)\b|^[0-9]+$")
+
+_DEFAULT_SKIP_EXTENSIONS = ("md", "py", "yaml", "yml", "npz", "json", "toml", "txt")
+
+
+def _build_skip_re(skip_extensions: Sequence[str]) -> re.Pattern[str]:
+    exts = "|".join(re.escape(e.lstrip(".")) for e in skip_extensions) or "(?!)"
+    return re.compile(rf"[\s/\\]|\.(?:{exts})\b|^[0-9]+$")
 
 
 class Linkifier:
     """Linkify inline code spans against a project's API symbol index."""
 
-    def __init__(self, symbol_index: SymbolIndex) -> None:
+    def __init__(
+        self,
+        symbol_index: SymbolIndex,
+        *,
+        skip_extensions: Sequence[str] = _DEFAULT_SKIP_EXTENSIONS,
+        link_short_names: bool = True,
+        link_dotted: bool = True,
+        aliases: Mapping[str, str] | None = None,
+    ) -> None:
         self._symbol_index = symbol_index
+        self._skip_re = _build_skip_re(skip_extensions)
+        self._link_short_names = link_short_names
+        self._link_dotted = link_dotted
+        self._aliases = dict(aliases or {})
         self._index: tuple[dict[str, str], dict[str, str]] | None = None
 
     def _resolved_index(self) -> tuple[dict[str, str], dict[str, str]]:
@@ -33,9 +53,18 @@ class Linkifier:
 
         def repl(match: re.Match[str]) -> str:
             inner = match.group(2)
-            if _SKIP_INLINE_RE.search(inner):
+            # Custom aliases win and bypass the skip heuristics (the user opted in).
+            if inner in self._aliases:
+                return f"[`{inner}`][{self._aliases[inner]}]"
+            if self._skip_re.search(inner):
                 return match.group(0)
-            target = self._symbol_index.resolve_identifier(inner, by_id, by_short)
+            target = self._symbol_index.resolve_identifier(
+                inner,
+                by_id,
+                by_short,
+                short_names=self._link_short_names,
+                dotted=self._link_dotted,
+            )
             if not target:
                 return match.group(0)
             return f"[`{inner}`][{target}]"
