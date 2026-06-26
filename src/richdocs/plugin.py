@@ -22,6 +22,7 @@ from richdocs._assets import (
     PALETTE_CSS_URI,
     SYMBOLS_CSS_URI,
     bundled_static_files,
+    ensure_material_features,
     generate_config_js,
     generate_symbols_css,
     generate_theme_overrides_css,
@@ -121,6 +122,9 @@ class RichDocsPlugin(BasePlugin[RichDocsConfig]):
 
         register_static_assets(config, self.config)
         set_mkdocstrings_templates(config, ASSETS_DIR)
+        # API hover/tooltips rely on Material's tooltip system.
+        if self.config.features.api_hover:
+            ensure_material_features(config, ["content.tooltips"])
         return config
 
     # -- files ------------------------------------------------------------

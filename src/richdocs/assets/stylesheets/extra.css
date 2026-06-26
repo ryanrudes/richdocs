@@ -92,6 +92,26 @@ body.api-nav-hovering .md-typeset :not(pre) > code {
   max-width: none;
 }
 
+/* Inline API-symbol mentions (autorefs): mark them as navigable — a dotted
+   underline (like the code-block hover) + accent color, so it's clear you can
+   click through to the reference. */
+.md-typeset a.autorefs-internal {
+  text-decoration: none;
+}
+.md-typeset a.autorefs-internal > code {
+  color: var(--rd-purple-bright);
+  background: transparent;
+  padding: 0 0.1em;
+  text-decoration: underline dotted #fad00099;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 0.08em;
+}
+.md-typeset a.autorefs-internal:hover > code,
+.md-typeset a.autorefs-internal:focus-visible > code {
+  color: var(--rd-gold);
+  text-decoration-color: #fad000;
+}
+
 .md-typeset .highlight:hover .md-clipboard::before,
 .md-typeset pre:hover .md-clipboard::before {
   color: #e3dfff;

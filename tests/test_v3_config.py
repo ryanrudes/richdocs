@@ -74,3 +74,14 @@ def test_invalid_runtime_rejected():
     cfg.load_dict({"package": "demo", "live_code": {"runtime": "nope"}})
     errors, _ = cfg.validate()
     assert errors  # Choice() rejects unknown runtime values
+
+
+def test_ensure_material_features_adds_and_dedups():
+    from mkdocs.theme import Theme
+
+    theme = Theme(name="material", features=["navigation.tabs"])
+    _assets.ensure_material_features({"theme": theme}, ["content.tooltips", "navigation.tabs"])
+    feats = list(theme["features"])
+    assert "content.tooltips" in feats
+    assert feats.count("navigation.tabs") == 1  # idempotent
+    _assets.ensure_material_features({}, ["x"])  # no theme → no error

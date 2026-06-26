@@ -175,6 +175,11 @@ async function highlightAll(root) {
       if (el.closest(".highlight") !== null) {
         return;
       }
+      /* Linked code = a navigable API symbol (autorefs); styled as a link, not
+         syntax-highlighted, so the link affordance isn't overwritten. */
+      if (el.closest("a") !== null) {
+        return;
+      }
       /* mkdocstrings badges (def/class/var, property, module-attribute, …) — CSS only */
       if (isMkdocstringsBadgeCode(el)) {
         return;

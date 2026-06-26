@@ -6,6 +6,21 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-26
+
+### Fixed
+
+- Inline API-symbol mentions (autoref links) now have a clear **navigable
+  affordance** — accent color + a dotted underline (with a hover/focus state) —
+  so it's obvious you can click through to the reference.
+- Shiki no longer re-highlights code **inside links**, which had masked the
+  symbol-link styling.
+- The plugin auto-enables Material's **`content.tooltips`** (when `api_hover` is
+  on), so the rich hover tooltips on API symbols work without extra config (this
+  was missing on the bundled demo site).
+
+[0.4.1]: https://github.com/ryanrudes/richdocs/releases/tag/v0.4.1
+
 ## [0.4.0] - 2026-06-26
 
 ### Changed

@@ -284,6 +284,24 @@ def generate_symbols_css(richdocs_config: RichDocsConfig) -> str:
     return "\n".join(rules) + "\n"
 
 
+def ensure_material_features(config: Any, features: list[str]) -> None:
+    """Enable Material theme `features` richdocs relies on (idempotent).
+
+    e.g. ``content.tooltips`` — required for the rich hover tooltips on API
+    symbols (inline autorefs and code-block hovers).
+    """
+    theme = config.get("theme")
+    if theme is None:
+        return
+    try:
+        current = list(theme.get("features", []) or [])
+    except (AttributeError, TypeError):  # pragma: no cover - non-Material theme
+        return
+    missing = [f for f in features if f not in current]
+    if missing:
+        theme["features"] = current + missing
+
+
 def set_mkdocstrings_templates(config: Any, assets_dir: Path) -> None:
     """Point mkdocstrings at the bundled enum/badge template overrides."""
     md = config["plugins"].get("mkdocstrings")

@@ -10,4 +10,4 @@ from __future__ import annotations
 from richdocs.plugin import RichDocsPlugin
 
 __all__ = ["RichDocsPlugin"]
-__version__ = "0.4.0"
+__version__ = "0.4.1"
