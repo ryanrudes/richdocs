@@ -57,6 +57,11 @@ export async function runOnPyodide(code, lang, stream) {
   }
 
   let pyodide;
+  // Pyodide's first load fetches several MB of WASM — surface that so the run
+  // doesn't look frozen.
+  if (runtimePromise === null) {
+    stream?.appendStdout("Loading the in-browser Python runtime (first run only)…\n");
+  }
   try {
     pyodide = await loadRuntime();
   } catch (error) {

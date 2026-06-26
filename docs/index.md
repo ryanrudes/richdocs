@@ -54,9 +54,14 @@ point — see the [API reference](api.md) and the full [configuration guide](con
 
 === "Runnable live code"
 
+    Click **▶ Run** below — on this published site it executes **in your browser**
+    via Pyodide (WebAssembly), no server needed. The first run downloads the
+    Python runtime, so give it a few seconds.
+
     ```python
-    # With a local Jupyter kernel, blocks like this get a ▶ Run button.
+    import sys
     print("hello from richdocs")
+    print("running", sys.version.split()[0], "in the browser via Pyodide")
     ```
 
 === "Auto-linked prose"

@@ -34,6 +34,10 @@ plugins:
   - search
   - richdocs:
       package: richdocs
+      live_code:
+        # Demo blocks are stdlib-only, so showcase in-browser execution: on the
+        # published site (no Jupyter) `auto` falls back to Pyodide (WebAssembly).
+        runtime: auto
   - mkdocstrings:
       handlers:
         python:

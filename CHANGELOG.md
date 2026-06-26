@@ -6,6 +6,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-26
+
+### Changed
+
+- `live_code.runtime` now defaults to **`jupyter`** (was `auto`). Web execution
+  (`pyodide`/`auto`) is opt-in, because Pyodide can't import a project's own
+  (non-WASM) package — an `auto` default would make `import yourpkg` blocks error
+  on published sites. The bundled demo opts into `auto` to showcase it.
+
+### Added
+
+- First-run loading notice for the Pyodide runtime (the multi-MB WASM download no
+  longer looks frozen).
+
+[0.3.1]: https://github.com/ryanrudes/richdocs/releases/tag/v0.3.1
+
 ## [0.3.0] - 2026-06-26
 
 ### Added

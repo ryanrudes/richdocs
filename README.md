@@ -93,7 +93,7 @@ plugins:
 
       live_code:                    # runnable code blocks
         enabled: true
-        runtime: auto               # auto | jupyter (local kernel) | pyodide (in-browser)
+        runtime: jupyter            # jupyter (local) | pyodide (browser) | auto
         jupyter_url: http://127.0.0.1:8888/
         token: your_package-docs    # default: <package>-docs
         launcher_port: 8889
@@ -188,14 +188,19 @@ plugins:
 
 Runnable code blocks have two backends, chosen by `live_code.runtime`:
 
-- **`jupyter`** — a local Jupyter kernel (full Python, any package); dev-only.
+- **`jupyter`** (default) — a local Jupyter kernel (full Python, any package).
+  On a published site it shows a "needs Jupyter" notice rather than running.
 - **`pyodide`** — CPython compiled to WebAssembly, running **in the browser**, so
   blocks are runnable on a published static site (e.g. GitHub Pages) with no
   server. Python only (shell blocks need Jupyter); install WASM-wheel packages via
   `live_code.pyodide.packages` (e.g. `numpy`, `pandas` — not `torch`/`mujoco`).
-- **`auto`** (default) — use Jupyter if it's reachable, otherwise fall back to
-  Pyodide. So authoring locally uses the full kernel, and the published site stays
-  runnable in the browser.
+- **`auto`** — use Jupyter if it's reachable, otherwise fall back to Pyodide.
+
+> **Opt into web execution deliberately.** Pyodide can only run browser-compatible
+> code — crucially, **your own package usually isn't available in the browser**, so
+> blocks that `import your_package` will fail under `pyodide`/`auto`. Use them only
+> when your runnable blocks are stdlib- or WASM-wheel-only. That's why the default
+> is `jupyter`.
 
 ```yaml
 plugins:

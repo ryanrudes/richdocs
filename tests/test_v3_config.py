@@ -60,11 +60,12 @@ def test_runtime_and_pyodide_config_emitted():
     assert payload["jupyter"]["pyodide"]["packages"] == ["numpy", "rich"]
 
 
-def test_runtime_defaults_to_auto():
+def test_runtime_defaults_to_jupyter():
+    # Safe default: web execution (pyodide/auto) is opt-in.
     cfg = _cfg({})
     js = _assets.generate_config_js(cfg, id_prefix="demo", token="t", assets_dir=ASSETS_DIR)
     payload = json.loads(js.split("= ", 1)[1].rstrip().rstrip(";"))
-    assert payload["jupyter"]["runtime"] == "auto"
+    assert payload["jupyter"]["runtime"] == "jupyter"
     assert payload["jupyter"]["pyodide"]["packages"] == []
 
 

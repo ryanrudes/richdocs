@@ -114,7 +114,11 @@ class LiveCodeConfig(base.Config):
     """
 
     enabled = c.Type(bool, default=True)
-    runtime = c.Choice(("auto", "jupyter", "pyodide"), default="auto")
+    # Default is the safe `jupyter` (deployed sites show a "needs Jupyter" notice
+    # rather than erroring). Opt into `pyodide`/`auto` only when your runnable
+    # blocks are browser-compatible (stdlib or packages with WASM wheels — your
+    # own package usually is NOT, so `import yourpkg` would fail in the browser).
+    runtime = c.Choice(("auto", "jupyter", "pyodide"), default="jupyter")
     pyodide = c.SubConfig(PyodideConfig)
     jupyter_url = c.Type(str, default="http://127.0.0.1:8888/")
     # Auth token. Defaults to ``<package>-docs``.
