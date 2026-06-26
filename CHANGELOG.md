@@ -6,6 +6,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-26
+
+### Added
+
+- **In-browser live code via Pyodide** — `live_code.runtime: auto | jupyter |
+  pyodide`. `pyodide` runs Python in the browser (WebAssembly), so runnable
+  blocks work on a published static site with no server; `auto` uses Jupyter when
+  reachable and falls back to Pyodide. Configure WASM-wheel packages via
+  `live_code.pyodide.packages`. (Python only; shell blocks need Jupyter.)
+- **`symbols.decorator_labels`** — rewrite the text of mkdocstrings decorator
+  labels (`property` → `prop`, …) via a build-time pass, in headings and the TOC.
+
+[0.3.0]: https://github.com/ryanrudes/richdocs/releases/tag/v0.3.0
+
 ## [0.2.0] - 2026-06-26
 
 Deep configurability for badges, linking, and highlighting. All additions are

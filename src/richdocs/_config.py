@@ -73,6 +73,10 @@ class SymbolsConfig(base.Config):
 
     labels = c.Type(dict, default={})
     colors = c.Type(dict, default={})
+    # Relabel the *text* of mkdocstrings decorator labels (rendered by griffe),
+    # e.g. ``{property: "prop", classmethod: "cls", dataclass: "data"}``. ``""``
+    # removes the label. Applied to both headings and the TOC at build time.
+    decorator_labels = c.Type(dict, default={})
 
 
 class HighlightConfig(base.Config):
@@ -91,10 +95,27 @@ class HighlightConfig(base.Config):
     aliases = c.Type(dict, default=_DEFAULT_LANG_ALIASES)
 
 
+class PyodideConfig(base.Config):
+    """In-browser (WebAssembly) Python runtime for live code on static sites."""
+
+    # Pyodide version + CDN. ``index_url`` overrides the derived jsdelivr URL.
+    version = c.Type(str, default="0.27.2")
+    index_url = c.Optional(c.Type(str))
+    # Packages to install (via micropip) before running — only those with
+    # WASM wheels work (e.g. numpy, pandas; not torch/mujoco).
+    packages = c.ListOfItems(c.Type(str), default=[])
+
+
 class LiveCodeConfig(base.Config):
-    """Runnable code blocks backed by a local Jupyter kernel (dev only)."""
+    """Runnable code blocks.
+
+    ``runtime``: ``jupyter`` (local kernel), ``pyodide`` (in-browser WASM, works
+    on a published static site), or ``auto`` (Jupyter if reachable, else Pyodide).
+    """
 
     enabled = c.Type(bool, default=True)
+    runtime = c.Choice(("auto", "jupyter", "pyodide"), default="auto")
+    pyodide = c.SubConfig(PyodideConfig)
     jupyter_url = c.Type(str, default="http://127.0.0.1:8888/")
     # Auth token. Defaults to ``<package>-docs``.
     token = c.Optional(c.Type(str))

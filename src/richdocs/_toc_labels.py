@@ -8,6 +8,7 @@ on mkdocstrings/Material markup, not on any project specifics.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from pathlib import Path
 
 _HEADING_RE = re.compile(
@@ -74,5 +75,44 @@ def sync_toc_labels(site_dir: Path, api_glob: str = "api/**/*.html") -> None:
     for html_path in site_dir.glob(api_glob):
         text = html_path.read_text(encoding="utf-8")
         patched = _patch_page_toc_labels(text)
+        if patched != text:
+            html_path.write_text(patched, encoding="utf-8")
+
+
+def _make_replacer(new_text: str) -> Callable[[re.Match[str]], str]:
+    def repl(match: re.Match[str]) -> str:
+        return match.group(1) + new_text + match.group(2)
+
+    return repl
+
+
+def _build_relabel_patterns(
+    mapping: dict[str, str],
+) -> list[tuple[re.Pattern[str], Callable[[re.Match[str]], str]]]:
+    patterns = []
+    for name, new_text in mapping.items():
+        # Match the <code> text inside a <small> whose class includes exactly
+        # doc-label-<name> (lookahead avoids matching doc-label-<name>-suffix).
+        pattern = re.compile(
+            rf'(<small class="[^"]*\bdoc-label-{re.escape(str(name))}(?=[\s"])[^"]*"><code>)[^<]*(</code>)'
+        )
+        patterns.append((pattern, _make_replacer(str(new_text))))
+    return patterns
+
+
+def relabel_decorator_labels(site_dir: Path, mapping: dict[str, str], api_glob: str = "api/**/*.html") -> None:
+    """Rewrite the text of mkdocstrings decorator labels (headings + TOC).
+
+    ``mapping`` is ``{label_name: new_text}`` (e.g. ``{"property": "prop"}``);
+    matches both the heading and the mirrored ``doc-label-toc`` variants.
+    """
+    patterns = _build_relabel_patterns(mapping)
+    if not patterns:
+        return
+    for html_path in site_dir.glob(api_glob):
+        text = html_path.read_text(encoding="utf-8")
+        patched = text
+        for pattern, repl in patterns:
+            patched = pattern.sub(repl, patched)
         if patched != text:
             html_path.write_text(patched, encoding="utf-8")

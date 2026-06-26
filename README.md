@@ -89,15 +89,20 @@ plugins:
       symbols:                      # relabel / recolor API badges (override-only)
         labels: {}                  # {function: def, attribute: var, enum: enum, ...}
         colors: {}                  # {enum: {fg: "#7ee8d3", bg: "#7ee8d324"}, class: {fg: "#b362ff"}, ...}
+        decorator_labels: {}        # rewrite decorator-label text {property: prop, classmethod: cls}
 
-      live_code:                    # runnable code blocks (dev only)
+      live_code:                    # runnable code blocks
         enabled: true
+        runtime: auto               # auto | jupyter (local kernel) | pyodide (in-browser)
         jupyter_url: http://127.0.0.1:8888/
         token: your_package-docs    # default: <package>-docs
         launcher_port: 8889
         launcher_script: scripts/docs-jupyter.sh
         kernel: python3
         runnable_languages: [python, bash]
+        pyodide:                    # in-browser Python (works on a published static site)
+          version: "0.27.2"
+          packages: []              # WASM-wheel packages to install, e.g. [numpy, pandas]
 
       theme:
         palette: {}                 # override any color (see Theming)
@@ -167,6 +172,40 @@ Recognized kinds: `module`, `class`, `enum`, `function`, `method`, `attribute`,
 `type_alias`, `member`. Setting a kind's color also recolors the decorator labels
 that map to it (e.g. `property` follows `attribute`). Dataclasses keep griffe's
 built-in `dataclass` label out of the box; recolor them via the `class` kind.
+
+You can also rewrite the **text** of mkdocstrings' decorator labels (these come
+from griffe, so they're handled by a build-time pass rather than the badge CSS):
+
+```yaml
+plugins:
+  - richdocs:
+      package: your_package
+      symbols:
+        decorator_labels: { property: prop, classmethod: cls, staticmethod: static }
+```
+
+## Live code: local Jupyter or in-browser Pyodide
+
+Runnable code blocks have two backends, chosen by `live_code.runtime`:
+
+- **`jupyter`** — a local Jupyter kernel (full Python, any package); dev-only.
+- **`pyodide`** — CPython compiled to WebAssembly, running **in the browser**, so
+  blocks are runnable on a published static site (e.g. GitHub Pages) with no
+  server. Python only (shell blocks need Jupyter); install WASM-wheel packages via
+  `live_code.pyodide.packages` (e.g. `numpy`, `pandas` — not `torch`/`mujoco`).
+- **`auto`** (default) — use Jupyter if it's reachable, otherwise fall back to
+  Pyodide. So authoring locally uses the full kernel, and the published site stays
+  runnable in the browser.
+
+```yaml
+plugins:
+  - richdocs:
+      package: your_package
+      live_code:
+        runtime: auto
+        pyodide:
+          packages: [numpy]
+```
 
 ## How it works
 

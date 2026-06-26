@@ -24,6 +24,9 @@ const JUPYTER = {
   token: RICHDOCS_JUPYTER.token || "richdocs-docs",
   kernelName: RICHDOCS_JUPYTER.kernelName || "python3",
 };
+// Execution backend: "jupyter" (local kernel), "pyodide" (in-browser WASM), or
+// "auto" (Jupyter if reachable, else Pyodide — so published sites still run).
+const RUNTIME = (RICHDOCS_JUPYTER.runtime || "auto").toLowerCase();
 
 function jupyterUrl(path) {
   const url = new URL(path, JUPYTER.baseUrl);
@@ -861,7 +864,18 @@ async function runOnKernel(kernel, code, lang, stream) {
   return { stdout, stderr, stdoutHtml, stderrHtml };
 }
 
+async function runViaPyodide(code, lang, stream) {
+  const { runOnPyodide } = await import("./live-code-pyodide.mjs");
+  return runOnPyodide(code, lang, stream);
+}
+
 async function executeCode(code, lang, stream) {
+  if (RUNTIME === "pyodide") {
+    return runViaPyodide(code, lang, stream);
+  }
+  if (RUNTIME === "auto" && !(await probeJupyter())) {
+    return runViaPyodide(code, lang, stream);
+  }
   let lastError;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
@@ -872,6 +886,10 @@ async function executeCode(code, lang, stream) {
       console.warn("Kernel run failed, resetting kernel:", error);
       await resetKernel();
     }
+  }
+  if (RUNTIME === "auto") {
+    console.warn("richdocs: Jupyter unavailable; falling back to in-browser Pyodide.");
+    return runViaPyodide(code, lang, stream);
   }
   throw lastError;
 }
@@ -1180,7 +1198,8 @@ async function handleAction(wrap, action) {
   }
 
   if (action === "run") {
-    if (!isLive()) {
+    // Only the Jupyter runtime requires the live switch; pyodide/auto self-select.
+    if (!isLive() && RUNTIME === "jupyter") {
       void renderConsole(consoleEl, {
         error:
           connectionState === "offline"
@@ -1200,7 +1219,6 @@ async function handleAction(wrap, action) {
 
     let failed = false;
     try {
-      await getKernel();
       const code = readSource(wrap, codeEl);
       const result = await executeCode(code, lang, stream);
       stream.finish();

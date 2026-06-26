@@ -33,7 +33,7 @@ from richdocs._jupyter import JupyterLauncher
 from richdocs._linkify import Linkifier
 from richdocs._nav_priority import build_priority_resolver
 from richdocs._symbol_index import IndexSpec, SymbolIndex
-from richdocs._toc_labels import sync_toc_labels
+from richdocs._toc_labels import relabel_decorator_labels, sync_toc_labels
 
 log = logging.getLogger("mkdocs.plugins.richdocs")
 
@@ -159,6 +159,8 @@ class RichDocsPlugin(BasePlugin[RichDocsConfig]):
             anchor_ids = self._api_indexer.write_symbol_index(site_dir)
             self._symbol_index.write_anchor_cache(anchor_ids)
         sync_toc_labels(site_dir)
+        # Relabel decorator-label text after the TOC mirror so both are rewritten.
+        relabel_decorator_labels(site_dir, dict(self.config.symbols.decorator_labels))
         if self._launcher:
             self._launcher.on_post_build()
 

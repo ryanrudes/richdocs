@@ -163,6 +163,7 @@ def generate_config_js(richdocs_config: RichDocsConfig, *, id_prefix: str, token
         },
         "jupyter": {
             "enabled": bool(live.enabled),
+            "runtime": live.runtime,
             "baseUrl": live.jupyter_url,
             "token": token,
             "kernelName": live.kernel,
@@ -171,6 +172,11 @@ def generate_config_js(richdocs_config: RichDocsConfig, *, id_prefix: str, token
             "connectTimeoutMs": int(live.connect_timeout_ms),
             "executeTimeoutMs": int(live.execute_timeout_ms),
             "runnableLanguages": list(live.runnable_languages),
+            "pyodide": {
+                "version": live.pyodide.version,
+                "indexUrl": live.pyodide.index_url,
+                "packages": list(live.pyodide.packages),
+            },
         },
         "theme": {
             "shikiTheme": shiki_theme,
