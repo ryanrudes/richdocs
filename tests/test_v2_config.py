@@ -23,19 +23,19 @@ def test_symbols_css_labels_and_colors():
         _cfg(
             {
                 "symbols": {
-                    "labels": {"class": "klass", "dataclass": "dataclass"},
-                    "colors": {"enum": {"fg": "#0f0", "bg": "#001"}, "dataclass": {"fg": "#f0f"}},
+                    "labels": {"class": "klass", "function": "fn"},
+                    "colors": {"enum": {"fg": "#0f0", "bg": "#001"}, "method": {"fg": "#f0f"}},
                 }
             }
         )
     )
     assert "code.doc-symbol-class::after" in css
     assert 'content: "klass" !important' in css
-    assert "code.doc-symbol-dataclass::after" in css
+    assert 'content: "fn" !important' in css
     assert "--doc-symbol-enum-fg-color: #0f0;" in css
     assert "--doc-symbol-enum-bg-color: #001;" in css
-    # custom kind (dataclass) gets a direct color rule, not just a var
-    assert "code.doc-symbol-dataclass" in css and "color: #f0f !important" in css
+    # color also emits a direct rule (covers contexts the vars miss)
+    assert "code.doc-symbol-method" in css and "color: #f0f !important" in css
 
 
 def test_symbols_css_empty_by_default():

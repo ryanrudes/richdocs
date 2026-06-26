@@ -34,7 +34,7 @@ SYMBOLS_CSS_URI = "stylesheets/richdocs-symbols.css"
 #: Symbol-type badge kinds richdocs knows about (for ``symbols.labels`` /
 #: ``symbols.colors``). Unknown kinds are still emitted but warned about.
 _KNOWN_SYMBOL_KINDS = frozenset(
-    {"module", "class", "dataclass", "enum", "function", "method", "attribute", "type_alias", "member", "package"}
+    {"module", "class", "enum", "function", "method", "attribute", "type_alias", "member", "package"}
 )
 
 

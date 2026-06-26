@@ -21,11 +21,9 @@ Context:
 {#- Language module providing the `t` translation method. -#}
 {% import "enum_macros.jinja" as enum %}
 {% set is_enum = enum.is_enum_class(class) %}
-{% set is_dataclass = enum.is_dataclass(class) %}
-{# Badge kind classes: enums become `enum`; dataclasses stay `class` plus an
-   additive `doc-symbol-dataclass` so richdocs' generated CSS can relabel/recolor
-   them without changing the default (class) look. #}
-{% set badge_kind = 'enum' if is_enum else ('class doc-symbol-dataclass' if is_dataclass else 'class') %}
+{# Enums render as the `enum` symbol kind; dataclasses keep griffe's built-in
+   `dataclass` decorator label (so they stay labeled out of the box). #}
+{% set badge_kind = 'enum' if is_enum else 'class' %}
 
 <div class="doc doc-object {% if is_enum %}doc-enum{% else %}doc-class{% endif %}">
   {% with obj = class, html_id = class.path, all_members = class.all_members %}

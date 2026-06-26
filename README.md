@@ -87,7 +87,7 @@ plugins:
           aliases: {}               # {"the result": "pkg.RetargetingResult"}
 
       symbols:                      # relabel / recolor API badges (override-only)
-        labels: {}                  # {class: dataclass, function: def, attribute: var, enum: enum, ...}
+        labels: {}                  # {function: def, attribute: var, enum: enum, ...}
         colors: {}                  # {enum: {fg: "#7ee8d3", bg: "#7ee8d324"}, class: {fg: "#b362ff"}, ...}
 
       live_code:                    # runnable code blocks (dev only)
@@ -156,7 +156,6 @@ plugins:
         labels:
           function: def          # "" empties the badge
           attribute: var
-          dataclass: dataclass   # dataclasses are detected automatically
           enum: enum
           member: member
         colors:
@@ -164,9 +163,10 @@ plugins:
           class: { fg: "#b362ff" }
 ```
 
-Recognized kinds: `module`, `class`, `dataclass`, `enum`, `function`, `method`,
-`attribute`, `type_alias`, `member`. Setting a kind's color also recolors the
-decorator labels that map to it (e.g. `property` follows `attribute`).
+Recognized kinds: `module`, `class`, `enum`, `function`, `method`, `attribute`,
+`type_alias`, `member`. Setting a kind's color also recolors the decorator labels
+that map to it (e.g. `property` follows `attribute`). Dataclasses keep griffe's
+built-in `dataclass` label out of the box; recolor them via the `class` kind.
 
 ## How it works
 

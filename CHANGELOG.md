@@ -17,8 +17,6 @@ override-only — defaults reproduce the 0.1.0 look exactly.
   `dataclass` / `enum` / `member` / anything) in both headings and the TOC.
 - **`symbols.colors`** — set `{fg, bg}` per kind; also recolors the decorator
   labels that map to a kind (e.g. `property` follows `attribute`).
-- **`dataclass`** badge detection (`@dataclass` → `doc-symbol-dataclass`), so
-  dataclasses can be labeled/colored distinctly from plain classes.
 - **`api.linkify`** — `short_names`, `dotted`, `skip_extensions`, and custom
   `aliases` (map an arbitrary word to a symbol) for both prose and code-block
   linking.
